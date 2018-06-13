@@ -51,19 +51,12 @@ public class UHF extends CordovaPlugin {
 
 
     private final String TAG = "ZstUHFApi";
-    private Button button_start;
     private ZstUHFApi mZstUHFApi;
-    private RelativeLayout tab_inventory, tab_setting, tab_rw;
-    private TextView textViewEPC, tag_count;
     private boolean in_set_param = false, isStart = false;
     private int button_setting_num = 0;
     private String lostTag = "";
-    private ListView listViewData;
     private SharedPreferences sp;
-    private ArrayList<EPC> listEPC;
-    private ArrayList<Map<String, Object>> listMap;
     private String ss;
-    private SoundPool soundPool;
     private final int STATE_NO_THING = 0, STATE_START_INVENTORY = 1,
             STATE_SET_POWER = 2, STATE_GET_POWER = 3,
             STATE_SET_CHANNEL = 4, STATE_GET_CHANNEL = 5,
@@ -80,42 +73,18 @@ public class UHF extends CordovaPlugin {
 
     //-----------------//
 
-    private Spinner spinnerMemBank;// 数据区
-    private EditText editPassword;// 密码
-    private EditText editAddr;// 起始地址
-    private EditText editLength;// 读取的数据长度
-    private EditText editWriteData;// 要写入的数据
-    private EditText editReadData;// 读取数据展示区
-    private final String[] strMemBank = {"RESERVE", "EPC", "TID", "USER"};//USER分别对应0,1,2,3
-    private ArrayAdapter<String> adatpterMemBank;
-    private int membank;// 数据区
-    private int addr = 0;// 起始地址
     private int length = 6;// 读取数据的长度
 
     //-----------------------//
 
-    private TextView tv_info;
-    private EditText edittext_pwr, edittext_thrd, edittext_SelParam, edittext_ptr, edittext_mask;
-    private Spinner sp_country_set, sp_mixe_set, sp_ifamp_set, sp_truncate_set;
-    private ArrayAdapter<String> sp_country_adapter, sp_mixe_adapter, sp_ifamp_adapter, sp_truncate_adapter;
-    private int curArrValue;
-    private String[] countryArr = {"中国900MHz", "中国800MHz", "美国", "欧洲", "韩国"};
-    private byte[] countryArrValue = new byte[]{0x01, 0x04, 0x02, 0x03, 0x06};
 
     private int curMixeValue;
-    private String[] MixerArr = {"0db", "3db", "6db", "9db", "12db", "15db", "16db"};
     private byte[] MixerArrValue = new byte[]{0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06};
 
-    private int curTruncateValue = 0x00;
-    private String[] TruncateArr = {"Disable truncation", "Enable truncation"};
 
     private int curIfampValue;
-    private String[] IfampArr = {"12db", "18db", "21db", "24db", "27db", "30db", "36db", "40db"};
     private byte[] IfampArrValue = new byte[]{0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07};
     private int mThrd = 0;
-    private int mSelParam;
-    private byte[] mPtr;
-    private byte[] mMask;
 
     @Override
     protected void pluginInitialize() {
@@ -129,7 +98,6 @@ public class UHF extends CordovaPlugin {
         sp = cordova.getActivity().getSharedPreferences("UHF_SHRAE", MODE_PRIVATE);
         button_setting_num = 0;
         mZstUHFApi = ZstUHFApi.getInstance(cordova.getActivity(), new MyZstUhfListen());
-        listEPC = new ArrayList<EPC>();
         mZstUHFApi.setModelPower(true, gpio1_num, gpio2_num);
         openScanDevice();
     }
@@ -154,7 +122,6 @@ public class UHF extends CordovaPlugin {
             if (oneByte.equals("7E")) {
                 endTag = 1;
                 if (true == Util.checkSum(ss)) {
-                    Log.d(TAG, "m_opration = " + m_opration);
                     if (m_opration == STATE_START_INVENTORY) {
                         if (ss.length() > 52) {
                             String data = ss.trim().replaceAll(" ", "");
@@ -166,13 +133,9 @@ public class UHF extends CordovaPlugin {
                             int pc_l = Util.toInt(data.substring(14, 16));
                             int pc = pc_h * 256 + pc_l;
                             String epc = "";
-//							Log.d(TAG, "data.length() = "+ data.length());
-//							Log.d(TAG, "plen = "+ plen);
                             if (plen >= 10 && data.length() >= 16 + plen - 10) {
                                 epc = data.substring(16, 16 + plen - 10);
-                                Log.d(TAG, "epc = " + epc);
                             }
-                            soundPool.play(1, 1, 1, 0, 0, 1);
                         } else {// EPC不够
                             int len = Util
                                     .toInt(ss.substring(12, 14));
@@ -194,94 +157,65 @@ public class UHF extends CordovaPlugin {
                             switch (m_opration) {
                                 case STATE_SET_POWER:// 设置功率
                                     if (recvStr.substring(4, 6).equals("B6")) {
-//                    tv_info.setText(getString(R.string.set_power_success));
                                     } else {
-//                    tv_info.setText(getString(R.string.set_power_fail));
                                     }
                                     break;
                                 case STATE_GET_POWER:// 获取功率
                                     if (recvStr.substring(4, 6).equals("B7")) {
                                         result = Util.GetPower(ss.trim());
-//                    tv_info.setText(getString(R.string.get_power_success));
-//                    edittext_pwr.setText(Util.GetPower(ss.trim()));
                                     } else {
-//                    tv_info.setText(getString(R.string.get_power_fail));
                                     }
                                     break;
                                 case STATE_SET_CHANNEL://设置工作信道
                                     if (recvStr.substring(4, 6).equals("AB")) {
-//                    tv_info.setText(getString(R.string.set_channel_success));
                                     } else {
-//                    tv_info.setText(getString(R.string.set_channel_fail));
                                     }
                                     break;
                                 case STATE_GET_CHANNEL://设置工作信道
                                     if (recvStr.substring(4, 6).equals("AA")) {
-//                    tv_info.setText(getString(R.string.get_channel_success));
                                     } else {
-//                    tv_info.setText(getString(R.string.get_channel_fail));
                                     }
                                     break;
                                 case STATE_SET_PARAM://设置模块参数
                                     if (recvStr.substring(4, 6).equals("F0")) {
-//                    tv_info.setText(getString(R.string.set_param_success));
                                     } else {
-//                    tv_info.setText(getString(R.string.set_param_fail));
                                     }
                                     break;
                                 case STATE_GET_PARAM://获取模块参数
                                     if (recvStr.substring(4, 6).equals("F1")) {
-//                    tv_info.setText(getString(R.string.get_param_success));
                                         if (recvStr.length() >= 12) {
                                             curMixeValue = Integer.parseInt(recvStr.substring(10, 12));
-//                      sp_mixe_set.setSelection(curMixeValue);
                                         }
                                         if (recvStr.length() >= 14) {
                                             curIfampValue = Integer.parseInt(recvStr.substring(12, 14));
-//                      sp_ifamp_set.setSelection(curIfampValue);
                                         }
                                         if (recvStr.length() >= 18) {
                                             String thrd_str = recvStr.substring(14, 18);
                                             if (thrd_str != null) {
-                                                Log.d(TAG, "thrd_str = " + thrd_str);
                                                 if (recvStr.length() >= 4) {
                                                     int thred_h = Util.toInt(thrd_str.substring(0, 2));
                                                     int thred_l = Util.toInt(thrd_str.substring(2, 4));
-                                                    Log.d(TAG, "thred_h = " + thred_h);
-                                                    Log.d(TAG, "thred_l = " + thred_l);
                                                     mThrd = thred_h * 256 + thred_l;
-                                                    Log.d(TAG, "mThrd = " + mThrd);
-//                          edittext_thrd.setText(String.valueOf(mThrd));
                                                 }
                                             }
                                         }
                                     } else {
-//                    tv_info.setText(getString(R.string.get_param_fail));
                                     }
                                     break;
                                 case STATE_READ_TAG:// 读标签
                                     if (recvStr.substring(4, 6).equals("39")) {
                                         // 读取成功
-//                    textViewEPC.setText(recvStr.substring(8 * 2, (8 + 12) * 2));
-//                    editReadData.append("读取:"
-//                      + recvStr.substring(recvStr.length()
-//                        - 4 - length * 4,
-//                      recvStr.length() - 4) + "\n");
                                         result = recvStr.substring(recvStr.length() - 4 - length * 4,
                                                 recvStr.length() - 4);
                                     } else {
                                         // 读取失败
-//                    editReadData.append("读取失败 \n");
-                                        Log.d("result", "读取失败");
                                     }
                                     break;
                                 case STATE_WRITE_TAG:// 写标签
                                     if (recvStr.substring(4, 6).equals("49")) {
                                         // 读取成功
-//                    editReadData.append("写入成功" + "\n");
                                     } else {
                                         // 读取失败
-//                    editReadData.append("写入失败 \n");
                                     }
                                     break;
                                 default:
@@ -315,12 +249,10 @@ public class UHF extends CordovaPlugin {
         int parity = 'N';
         String flow_ctrl = sp.getString("FLOW", "None");
         String parity_check = sp.getString("PARITY", "None");
-        Log.d(TAG, "baud_rate = " + baud_rate);
         /* Check parameters */
         if ((path.length() == 0) || (baud_rate == -1)) {
             throw new InvalidParameterException();
         }
-        Log.d(TAG, "path = " + path);
         if (flow_ctrl.equals("RTS/CTS"))
             flow = 1;
         else if (flow_ctrl.equals("XON/XOFF"))
@@ -337,20 +269,11 @@ public class UHF extends CordovaPlugin {
                     new File(path), baud_rate, flow,
                     data_bits, stop_bits, parity, gpio1_num);
         }
-        Log.d(TAG, "retOpen = " + retOpen);
-//		btn_scan_one.setEnabled(false);
-//		btn_scan_continuous.setEnabled(false);
         if (retOpen == android.serialport.SerialPortManager.RET_OPEN_SUCCESS ||
                 retOpen == android.serialport.SerialPortManager.RET_DEVICE_OPENED) {
-//			btn_scan_one.setEnabled(true);
-//			btn_scan_continuous.setEnabled(true);
-//			isOpened = true;
         } else if (retOpen == android.serialport.SerialPortManager.RET_NO_PRTMISSIONS) {
-//      DisplayError(R.string.error_security);
         } else if (retOpen == android.serialport.SerialPortManager.RET_ERROR_CONFIG) {
-//      DisplayError(R.string.error_configuration);
         } else {
-//      DisplayError(R.string.error_unknown);
         }
         return retOpen;
     }
