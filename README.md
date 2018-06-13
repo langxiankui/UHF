@@ -1,6 +1,9 @@
 # UHF
 # cordova-plugin-UHF
 
+## 安装方法
+> cordova plugin add https://github.com/langxiankui/UHF
+
 ## function:
 > cordova.plugins.UHF.readCard(obj, successCallBack, errorCallback);    
 >> 读卡  obj = {site: int, length: int}    site:区域 1==EPC 3==USER
