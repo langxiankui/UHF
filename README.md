@@ -6,7 +6,7 @@
 
 ## function:
 > cordova.plugins.UHF.readCard(obj, successCallBack, errorCallback);    
->> 读卡  obj = {site: int, length: int}    site:区域 1==EPC 3==USER
+>> 读卡  obj = {site: int}    site:区域 1==EPC 3==USER
 
 > cordova.plugins.UHF.searchCard(successCallBack, errorCallback);      
 >> 寻卡  success中返回所找到card的epc
