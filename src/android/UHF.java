@@ -336,13 +336,13 @@ public class UHF extends CordovaPlugin {
         m_opration = STATE_READ_TAG;
         result = "";
         int site = message.getJSONObject(0).getInt("site");
-        length = message.getJSONObject(0).getInt("length");
         int addr = 0;
         if (site == 1) {
             addr = 2;
             length = 6;
         } else if (site == 3) {
             addr = 0;
+            length = 32;
         }
         mZstUHFApi.readCradTag(Util.hexStr2Str("00000000"), (byte) site, addr, length);
         Timer timer = new Timer();
@@ -355,7 +355,8 @@ public class UHF extends CordovaPlugin {
                     if (site == 1) {
                         callbackContext.success(result);
                     } else if (site == 3) {
-                        callbackContext.success(Util.hexString2Str(result));
+                        String _result = Util.hexString2Str(result);
+                        callbackContext.success(_result.substring(0, _result.indexOf(0)));
                     }
                 }
             }
@@ -370,12 +371,8 @@ public class UHF extends CordovaPlugin {
         if (!_data.matches(reg)) {
             callbackContext.error("invalid data");
         }
-        int _k = _data.length() % 2;
-        if (_k != 0) {
-            _data += '0';
-        }
         byte[] password = Util.hexStr2Str("00000000");
-        byte[] data = Util.hexStr2Str(Util.str2HexStr(_data));
+        byte[] data = Util.hexStr2String(Util.str2HexStr(_data));
         int site = message.getJSONObject(0).getInt("site");
         int addr = 0;
         if (site == 1) {

@@ -181,6 +181,28 @@ public class Util {
 		return ss;
 	}
 
+	public static byte[] hexStr2String(String hexStr) {
+		if (hexStr == null) {
+			return null;
+		}
+		hexStr = hexStr.toString().trim().replace(" ", "").toUpperCase(Locale.US);
+		while (true) {
+			if (hexStr.length() >= 128) {
+				break;
+			}
+			hexStr += "00";
+		}
+		char[] hexs = hexStr.toCharArray();
+		byte[] bytes = new byte[hexStr.length() / 2];
+		int iTmp = 0x00;
+		for (int i = 0; i < bytes.length; i++) {
+			iTmp = mHexStr.indexOf(hexs[2 * i]) << 4;
+			iTmp |= mHexStr.indexOf(hexs[2 * i + 1]);
+			bytes[i] = (byte) (iTmp & 0xFF);
+		}
+		return bytes;
+	}
+
 	public static int toInt(byte b) {
 		return (int) b & 0xFF;
 	}
