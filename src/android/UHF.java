@@ -367,7 +367,7 @@ public class UHF extends CordovaPlugin {
     private void writeCard(JSONArray message, CallbackContext callbackContext) throws JSONException {
 
         m_opration = STATE_WRITE_TAG;
-        String _data = message.getJSONObject(0).getString("data");
+        String _data = message.getString(0);
         String reg = "^[\\x20-\\x7e]+$";
         if (!_data.matches(reg)) {
             callbackContext.error("invalid data");
