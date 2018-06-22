@@ -321,7 +321,8 @@ public class UHF extends CordovaPlugin {
     private void searchCard(CallbackContext callbackContext) {
         m_opration = STATE_READ_TAG;
         result = "";
-        mZstUHFApi.readCradTag(Util.hexStr2Str("00000000"), (byte) 1, 2, 6);
+        length = 6;
+        mZstUHFApi.readCradTag(Util.hexStr2Str("00000000"), (byte) 1, 2, length);
         Timer timer = new Timer();
         timer.schedule(new TimerTask() {
             @Override
