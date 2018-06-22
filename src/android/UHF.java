@@ -374,7 +374,7 @@ public class UHF extends CordovaPlugin {
         }
         byte[] password = Util.hexStr2Str("00000000");
         byte[] data = Util.hexStr2String(Util.str2HexStr(_data));
-        int site = message.getJSONObject(0).getInt("site");
+        int site = 3;
         int addr = 0;
         if (site == 1) {
             addr = 2;
