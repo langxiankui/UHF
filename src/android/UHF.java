@@ -357,7 +357,11 @@ public class UHF extends CordovaPlugin {
                         callbackContext.success(result);
                     } else if (site == 3) {
                         String _result = Util.hexString2Str(result);
-                        callbackContext.success(_result.substring(0, _result.indexOf(0)));
+                        int i = _result.indexOf(0);
+                        if (i > -1) {
+                          _result = _result.substring(0, i);
+                        }
+                        callbackContext.success(_result);
                     }
                 }
             }
