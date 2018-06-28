@@ -30,4 +30,8 @@ coolMethod.setParam = function (arg0, success, error) {
     exec(success, error, 'UHF', 'setParam', [arg0]);
 }
 
+coolMethod.readTid = function (success, error, arg0) {
+    exec(success, error, 'UHF', 'readTid', [arg0]);   
+}
+
 module.exports = coolMethod;
