@@ -306,6 +306,9 @@ public class UHF extends CordovaPlugin {
         } else if (action.equals("setParam")) {
             this.setParam(args, callbackContext);
             return true;
+        } else if (action.equals("readTid")) {
+            this.readTid(callbackContext);
+            return true;
         }
         return false;
     }
@@ -454,6 +457,20 @@ public class UHF extends CordovaPlugin {
                 callbackContext.success(mThrd);
             }
         }, 200);
+    }
+    
+    private void readTid(CallbackContext callbackContext) {
+      m_opration = STATE_READ_TAG;
+      result = "";
+      length = 12;
+      mZstUHFApi.readCradTag(Util.hexStr2Str("00000000"), (byte) 2, 0, length);
+      Timer timer = new Timer();
+      timer.schedule(new TimerTask() {
+        @Override
+        public void run() {
+          callbackContext.success(result);
+        }
+      }, 200);
     }
 
 }
