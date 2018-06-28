@@ -25,3 +25,6 @@
 
 > cordova.plugins.UHF.setParam(int, successCallBack, errorCallback);   
 >> 设置阈值
+
+> cordova.plugins.UHF.readTid(successCallBack, errorCallback);   
+>> 读取Tid区 success中返回所找到card的Tid;
